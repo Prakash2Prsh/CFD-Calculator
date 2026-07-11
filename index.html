@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Y+ Console — CFD Mesh &amp; Time Step Calculator</title>
+<meta name="description" content="Aerospace-grade CFD calculators for mesh bias, inflation layers and CFL time-stepping — built for ANSYS Fluent and OpenFOAM workflows.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22><rect width=%2232%22 height=%2232%22 rx=%227%22 fill=%22%230a0d12%22/><path d=%22M6 24 L6 8 M6 24 L26 24%22 stroke=%22%2322d3ee%22 stroke-width=%222%22 fill=%22none%22/><path d=%22M6 24 C 12 24 12 12 20 8%22 stroke=%22%234f8cff%22 stroke-width=%222.4%22 fill=%22none%22/></svg>">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="rail-brand">
+    <div class="mark">y+</div>
+    <div class="name">Y+ Console<small>CFD CALCULATION SUITE</small></div>
+  </div>
+  <button class="burger" id="burger" aria-label="Open navigation">
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+  </button>
+</div>
+
+<div class="scrim" id="scrim"></div>
+
+<div class="app">
+
+  <nav class="rail" id="rail">
+    <div class="rail-brand">
+      <div class="mark">y+</div>
+      <div class="name">Y+ Console<small>CFD CALCULATION SUITE</small></div>
+    </div>
+
+    <div class="rail-nav">
+      <div class="group-label">Overview</div>
+      <button class="nav-btn active" data-target="home">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg>
+        Home
+      </button>
+
+      <div class="group-label">Calculators</div>
+      <button class="nav-btn" data-target="bias">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M11 20V4M18 20v-7"/></svg>
+        Bias Factor
+      </button>
+      <button class="nav-btn" data-target="cfl">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+        CFL &amp; Time Step
+      </button>
+      <button class="nav-btn" data-target="inflation">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 20h18M5 20V13M9 20V10M13 20V7M17 20V5"/></svg>
+        Inflation Layers
+      </button>
+
+      <div class="group-label">Reference</div>
+      <button class="nav-btn" data-target="formulas">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h9l5 5v13H6z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg>
+        Formula Reference
+      </button>
+      <button class="nav-btn" data-target="about">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>
+        About
+      </button>
+    </div>
+
+    <div class="rail-foot">
+      <span class="dot">●</span> All calculations run locally in your browser<br>
+      No data leaves this page
+    </div>
+  </nav>
+
+  <main class="main">
+
+    <!-- =========================== HOME =========================== -->
+    <section class="view active" id="view-home">
+      <div class="view-header" style="margin-bottom:0;">
+        <div class="hero">
+          <div>
+            <div class="eyebrow">Boundary-layer meshing, done exactly</div>
+            <h1>Solve Y+, <span class="grad">mesh bias</span> &amp; time step<br>without leaving the browser.</h1>
+            <p class="lede">Three focused calculators for pre-processing compressible CFD cases — reverse-engineer growth rate from a target Y+, size prism inflation layers, and set a stable transient time step. Every formula matches the reference engineering scripts, cell for cell.</p>
+            <div class="hero-cta">
+              <button class="btn btn-primary" data-goto="bias">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                Open Bias Factor Calculator
+              </button>
+              <button class="btn btn-ghost" data-goto="formulas">Read the formula reference</button>
+            </div>
+            <div class="stat-strip">
+              <div class="stat"><div class="n">3</div><div class="l">Calculators</div></div>
+              <div class="stat"><div class="n">1e-12</div><div class="l">Bisection tolerance</div></div>
+              <div class="stat"><div class="n">Sutherland</div><div class="l">Viscosity law</div></div>
+              <div class="stat"><div class="n">100%</div><div class="l">Client-side</div></div>
+            </div>
+          </div>
+          <div id="hero-svg-slot"></div>
+        </div>
+      </div>
+
+      <div class="card-title" style="margin-bottom:14px;">Jump to a calculator</div>
+      <div class="card-grid">
+        <div class="tool-card" data-goto="bias">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M11 20V4M18 20v-7"/></svg></div>
+          <h3>Bias Factor Calculator</h3>
+          <p>Back out first-cell height from Fluent's τ_w, then solve growth rate for a target division count — or solve division count for a target growth rate. Supports symmetric bias.</p>
+          <div class="go">Open calculator <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+        </div>
+        <div class="tool-card" data-goto="cfl">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
+          <h3>CFL &amp; Time Step Calculator</h3>
+          <p>Convert a target Courant number and minimum cell length into a stable transient time step, and estimate total steps needed to simulate N residence times.</p>
+          <div class="go">Open calculator <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+        </div>
+        <div class="tool-card" data-goto="inflation">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 20h18M5 20V13M9 20V10M13 20V7M17 20V5"/></svg></div>
+          <h3>Inflation Layer Calculator</h3>
+          <p>Size a full prism-layer stack from flat-plate turbulent correlations: first layer height, growth rate, layer count, and boundary-layer coverage.</p>
+          <div class="go">Open calculator <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================== BIAS CALCULATOR =========================== -->
+    <section class="view" id="view-bias">
+      <div class="view-header">
+        <div class="eyebrow">Calculator 01</div>
+        <h1>Bias Factor / Mesh Bias Calculator</h1>
+        <p class="lede">Enter stagnation conditions and a wall shear stress read from a converged Fluent solution to get the required first-cell height, then solve for growth rate or division count.</p>
+      </div>
+
+      <div class="calc-grid">
+        <div>
+          <div class="card">
+            <div class="card-title">Aero &amp; thermodynamics<span class="badge">isentropic + Sutherland</span></div>
+            <div class="field-row">
+              <div class="field">
+                <div class="label-line">Stagnation pressure P₀
+                  <span class="tip" tabindex="0">i<span class="tip-pop">Total pressure at the inlet / freestream reference point.</span></span>
+                </div>
+                <div class="input-wrap"><input type="number" id="b-P0" value="101325" data-default="101325"><span class="unit-suffix">Pa</span></div>
+                <div class="err-msg">Enter a valid number.</div>
+              </div>
+              <div class="field">
+                <div class="label-line">Stagnation temperature T₀
+                  <span class="tip" tabindex="0">i<span class="tip-pop">Total temperature at the same reference point as P₀.</span></span>
+                </div>
+                <div class="input-wrap"><input type="number" id="b-T0" value="300" data-default="300"><span class="unit-suffix">K</span></div>
+                <div class="err-msg">Enter a valid number.</div>
+              </div>
+            </div>
+            <div class="field">
+              <div class="label-line">Mach number M
+                <span class="tip" tabindex="0">i<span class="tip-pop">Freestream Mach number used to recover static conditions via isentropic relations.</span></span>
+              </div>
+              <div class="input-wrap"><input type="number" id="b-M" value="2" data-default="2" step="0.01"><span class="unit-suffix">—</span></div>
+              <div class="err-msg">Enter a valid number.</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Boundary layer properties<span class="badge">from Fluent report</span></div>
+            <div class="field-row">
+              <div class="field">
+                <div class="label-line">Wall shear stress τ_w
+                  <span class="tip" tabindex="0">i<span class="tip-pop">Read from Fluent's wall-shear-stress report on a converged solution. Used to reverse-calculate C_f and U_τ.</span></span>
+                </div>
+                <div class="input-wrap"><input type="number" id="b-tauw" value="1.5" data-default="1.5" step="0.001"><span class="unit-suffix">Pa</span></div>
+                <div class="err-msg">Enter a valid number.</div>
+              </div>
+              <div class="field">
+                <div class="label-line">Target Y+
+                  <span class="tip" tabindex="0">i<span class="tip-pop">Dimensionless wall distance you want the first cell center to land at.</span></span>
+                </div>
+                <div class="input-wrap"><input type="number" id="b-yplus" value="1" data-default="1" step="0.1"><span class="unit-suffix">—</span></div>
+                <div class="err-msg">Enter a valid number.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Domain geometry &amp; solver mode</div>
+            <div class="field">
+              <div class="label-line">Domain length L
+                <span class="tip" tabindex="0">i<span class="tip-pop">Total length the biased row of cells must span (normal to the wall).</span></span>
+              </div>
+              <div class="input-wrap"><input type="number" id="b-L" value="0.05" data-default="0.05" step="0.001"><span class="unit-suffix">m</span></div>
+              <div class="err-msg">Enter a valid number.</div>
+            </div>
+
+            <div class="check-row">
+              <div class="switch" id="b-sym-switch"></div>
+              <div class="label-line" style="margin:0;">Symmetric bias
+                <span class="tip" tabindex="0">i<span class="tip-pop">Growth from both ends toward a shared center, mirroring the Python script's symmetric-sum branch.</span></span>
+              </div>
+            </div>
+
+            <div class="field" style="margin-top:14px;">
+              <div class="label-line">Solver mode</div>
+              <div class="seg" id="b-mode-seg">
+                <button class="active" data-value="1">Target N → solve r</button>
+                <button data-value="2">Target r → solve N</button>
+              </div>
+            </div>
+
+            <div class="field" id="b-field-N">
+              <div class="label-line">Number of divisions N</div>
+              <div class="input-wrap"><input type="number" id="b-N" value="40" data-default="40" step="1"><span class="unit-suffix">cells</span></div>
+              <div class="err-msg">Enter a valid number.</div>
+            </div>
+            <div class="field" id="b-field-r" style="display:none;">
+              <div class="label-line">Target growth rate r</div>
+              <div class="input-wrap"><input type="number" id="b-rtarget" value="1.05" data-default="1.05" step="0.001"><span class="unit-suffix">—</span></div>
+              <div class="err-msg">Enter a valid number.</div>
+            </div>
+
+            <div class="btn-row">
+              <button class="btn btn-primary" id="b-calc-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3v18M3 9h18"/></svg>
+                Calculate
+              </button>
+              <button class="btn btn-ghost" id="b-reset-btn">Reset</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="output-panel">
+          <div class="card">
+            <div class="card-title">Results
+              <button class="btn btn-ghost btn-sm" id="b-copy-btn">Copy results</button>
+            </div>
+            <div id="b-output"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================== CFL CALCULATOR =========================== -->
+    <section class="view" id="view-cfl">
+      <div class="view-header">
+        <div class="eyebrow">Calculator 02</div>
+        <h1>CFL &amp; Transient Time Step Calculator</h1>
+        <p class="lede">Turn a target Courant number and your smallest cell length into a stable explicit-consistent time step, and estimate how many steps a full run needs.</p>
+      </div>
+
+      <div class="calc-grid">
+        <div>
+          <div class="card">
+            <div class="card-title">Aero &amp; thermodynamics<span class="badge">defaults provided</span></div>
+            <div class="field-row">
+              <div class="field">
+                <div class="label-line">Stagnation pressure P₀
+                  <span class="tip" tabindex="0">i<span class="tip-pop">Captured for the flow record, matching the reference script — it is not used in the time-step formula itself.</span></span>
+                </div>
+                <div class="input-wrap"><input type="number" id="c-P0" value="101325" data-default="101325"><span class="unit-suffix">Pa</span></div>
+                <div class="err-msg">Enter a valid number.</div>
+              </div>
+              <div class="field">
+                <div class="label-line">Stagnation temperature T₀</div>
+                <div class="input-wrap"><input type="number" id="c-T0" value="300" data-default="300"><span class="unit-suffix">K</span></div>
+                <div class="err-msg">Enter a valid number.</div>
+              </div>
+            </div>
+            <div class="field">
+              <div class="label-line">Mach number M</div>
+              <div class="input-wrap"><input type="number" id="c-M" value="3" data-default="3" step="0.01"><span class="unit-suffix">—</span></div>
+              <div class="err-msg">Enter a valid number.</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Mesh &amp; solver parameters</div>
+            <div class="field-row">
+              <div class="field">
+                <div class="label-line">Target Courant number (CFL)
+                  <span class="tip" tabindex="0">i<span class="tip-pop">Desired Courant–Friedrichs–Lewy number for the transient solver.</span></span>
+                </div>
+                <div class="input-wrap"><input type="number" id="c-CFL" value="1" data-default="1" step="0.1"><span class="unit-suffix">—</span></div>
+                <div class="err-msg">Enter a valid number.</div>
+              </div>
+              <div class="field">
+                <div class="label-line">Minimum element length Δx
+                  <span class="tip" tabindex="0">i<span class="tip-pop">Smallest cell dimension in the mesh, usually the first inflation layer.</span></span>
+                </div>
+                <div class="input-wrap"><input type="number" id="c-dx" value="0.0005" data-default="0.0005" step="0.0001"><span class="unit-suffix">m</span></div>
+                <div class="err-msg">Enter a valid number.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Domain &amp; simulation time</div>
+            <div class="field-row">
+              <div class="field">
+                <div class="label-line">Domain length L</div>
+                <div class="input-wrap"><input type="number" id="c-L" value="1" data-default="1" step="0.01"><span class="unit-suffix">m</span></div>
+                <div class="err-msg">Enter a valid number.</div>
+              </div>
+              <div class="field">
+                <div class="label-line">Residence times to simulate
+                  <span class="tip" tabindex="0">i<span class="tip-pop">How many multiples of one flow-through time the run should cover.</span></span>
+                </div>
+                <div class="input-wrap"><input type="number" id="c-res" value="10" data-default="10" step="1"><span class="unit-suffix">—</span></div>
+                <div class="err-msg">Enter a valid number.</div>
+              </div>
+            </div>
+
+            <div class="btn-row">
+              <button class="btn btn-primary" id="c-calc-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3v18M3 9h18"/></svg>
+                Calculate
+              </button>
+              <button class="btn btn-ghost" id="c-reset-btn">Reset</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="output-panel">
+          <div class="card">
+            <div class="card-title">Results
+              <button class="btn btn-ghost btn-sm" id="c-copy-btn">Copy results</button>
+            </div>
+            <div id="c-output"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================== INFLATION CALCULATOR =========================== -->
+    <section class="view" id="view-inflation">
+      <div class="view-header">
+        <div class="eyebrow">Calculator 03 · Additional</div>
+        <h1>Inflation Layer (Prism Layer) Calculator</h1>
+        <p class="lede">Sizes a full inflation stack from standard flat-plate turbulent boundary-layer correlations — the same relations behind Fluent Meshing's Y+ estimation and OpenFOAM's snappyHexMesh layer addition.</p>
+      </div>
+
+      <div class="calc-grid">
+        <div>
+          <div class="card">
+            <div class="card-title">Flow conditions<span class="badge">local, at reference length x</span></div>
+            <div class="field-row">
+              <div class="field">
+                <div class="label-line">Density ρ</div>
+                <div class="input-wrap"><input type="number" id="i-rho" value="1.225" data-default="1.225" step="0.001"><span class="unit-suffix">kg/m³</span></div>
+                <div class="err-msg">Enter a valid number.</div>
+              </div>
+              <div class="field">
+                <div class="label-line">Dynamic viscosity μ</div>
+                <div class="input-wrap"><input type="number" id="i-mu" value="1.8e-5" data-default="1.8e-5" step="0.000001"><span class="unit-suffix">kg/(m·s)</span></div>
+                <div class="err-msg">Enter a valid number.</div>
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <div class="label-line">Freestream velocity U</div>
+                <div class="input-wrap"><input type="number" id="i-U" value="50" data-default="50" step="0.1"><span class="unit-suffix">m/s</span></div>
+                <div class="err-msg">Enter a valid number.</div>
+              </div>
+              <div class="field">
+                <div class="label-line">Reference length x
+                  <span class="tip" tabindex="0">i<span class="tip-pop">Distance from the leading edge, used for Re_x, C_f and δ.</span></span>
+                </div>
+                <div class="input-wrap"><input type="number" id="i-x" value="1" data-default="1" step="0.01"><span class="unit-suffix">m</span></div>
+                <div class="err-msg">Enter a valid number.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">First layer height</div>
+            <div class="seg" id="i-firstlayer-seg">
+              <button class="active" data-value="auto">Auto from target Y+</button>
+              <button data-value="manual">Manual height</button>
+            </div>
+            <div class="field" id="i-field-yplus" style="margin-top:14px;">
+              <div class="label-line">Target Y+</div>
+              <div class="input-wrap"><input type="number" id="i-yplus" value="1" data-default="1" step="0.1"><span class="unit-suffix">—</span></div>
+              <div class="err-msg">Enter a valid number.</div>
+            </div>
+            <div class="field" id="i-field-firstval" style="display:none; margin-top:14px;">
+              <div class="label-line">First layer height y₁</div>
+              <div class="input-wrap"><input type="number" id="i-firstval" value="0.02" data-default="0.02" step="0.001"><span class="unit-suffix">mm</span></div>
+              <div class="err-msg">Enter a valid number.</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Layer stack</div>
+            <div class="field">
+              <div class="label-line">Growth rate r</div>
+              <div class="input-wrap"><input type="number" id="i-growth" value="1.2" data-default="1.2" step="0.01"><span class="unit-suffix">—</span></div>
+              <div class="err-msg">Enter a valid number.</div>
+            </div>
+            <div class="field">
+              <div class="label-line" id="i-layerval-label">Number of layers (N)</div>
+              <div class="seg" id="i-layermode-seg" style="margin-bottom:10px;">
+                <button class="active" data-value="count">Fixed layer count</button>
+                <button data-value="coverage">Target BL coverage %</button>
+              </div>
+              <div class="input-wrap"><input type="number" id="i-layerval" value="15" data-default="15" step="1"><span class="unit-suffix" id="i-layerval-suffix">layers</span></div>
+              <div class="err-msg">Enter a valid number.</div>
+            </div>
+
+            <div class="btn-row">
+              <button class="btn btn-primary" id="i-calc-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3v18M3 9h18"/></svg>
+                Calculate
+              </button>
+              <button class="btn btn-ghost" id="i-reset-btn">Reset</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="output-panel">
+          <div class="card">
+            <div class="card-title">Results
+              <button class="btn btn-ghost btn-sm" id="i-copy-btn">Copy results</button>
+            </div>
+            <div id="i-output"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================== FORMULA REFERENCE =========================== -->
+    <section class="view" id="view-formulas">
+      <div class="view-header">
+        <div class="eyebrow">Documentation</div>
+        <h1>Formula Reference</h1>
+        <p class="lede">Every governing equation used across the three calculators, with variable definitions, units, assumptions and practical ANSYS Fluent notes.</p>
+      </div>
+
+      <div class="toc">
+        <a href="#formulas-isentropic">Isentropic relations</a>
+        <a href="#formulas-sutherland">Sutherland's law</a>
+        <a href="#formulas-wallunits">Wall units &amp; first cell</a>
+        <a href="#formulas-bias">Geometric bias series</a>
+        <a href="#formulas-cfl">CFL condition</a>
+        <a href="#formulas-inflation">Flat-plate BL &amp; inflation stack</a>
+      </div>
+
+      <div class="formula-block" id="formulas-isentropic">
+        <h2><span class="num">01</span>Isentropic flow relations</h2>
+        <p>Recovers static temperature and pressure from stagnation conditions and Mach number, then density and speed of sound follow from the ideal gas law.</p>
+        <div class="eq">T = T₀ / (1 + 0.5(γ−1)M²)<br>P = P₀ / (1 + 0.5(γ−1)M²)^(γ/(γ−1))<br>ρ = P / (R·T)<br>a = √(γ·R·T)<br>U = M·a</div>
+        <table class="var-table">
+          <tr><th>Symbol</th><th>Meaning</th><th>Units</th></tr>
+          <tr><td>T₀, P₀</td><td>Stagnation temperature, pressure</td><td>K, Pa</td></tr>
+          <tr><td>γ</td><td>Ratio of specific heats (fixed at 1.4 for air)</td><td>—</td></tr>
+          <tr><td>R</td><td>Specific gas constant for air</td><td>287.05 J/(kg·K)</td></tr>
+          <tr><td>M</td><td>Mach number</td><td>—</td></tr>
+          <tr><td>ρ, a, U</td><td>Static density, speed of sound, velocity</td><td>kg/m³, m/s, m/s</td></tr>
+        </table>
+        <div class="pill-row"><span class="pill">Assumes calorically perfect air</span><span class="pill">Assumes isentropic flow to the reference point</span></div>
+      </div>
+
+      <div class="formula-block" id="formulas-sutherland">
+        <h2><span class="num">02</span>Sutherland's viscosity law</h2>
+        <p>Gives dynamic viscosity as a function of static temperature, matched to the reference values Fluent uses by default for air.</p>
+        <div class="eq">μ = μ_ref · (T/T_ref)^1.5 · (T_ref + S)/(T + S)</div>
+        <table class="var-table">
+          <tr><th>Symbol</th><th>Meaning</th><th>Units</th></tr>
+          <tr><td>μ_ref</td><td>Reference viscosity</td><td>1.716×10⁻⁵ kg/(m·s)</td></tr>
+          <tr><td>T_ref</td><td>Reference temperature</td><td>273.15 K</td></tr>
+          <tr><td>S</td><td>Sutherland constant for air</td><td>110.4 K</td></tr>
+        </table>
+      </div>
+
+      <div class="formula-block" id="formulas-wallunits">
+        <h2><span class="num">03</span>Wall units &amp; first cell height</h2>
+        <p>Rather than estimate skin friction analytically, the Bias Factor calculator reverse-engineers it from a converged Fluent wall-shear-stress report, which is more accurate for the actual geometry than a flat-plate correlation.</p>
+        <div class="eq">C_f = τ_w / (0.5·ρ·U²)<br>U_τ = √(τ_w / ρ)<br>Δy = y⁺ · μ / (ρ·U_τ)</div>
+        <table class="var-table">
+          <tr><th>Symbol</th><th>Meaning</th><th>Units</th></tr>
+          <tr><td>τ_w</td><td>Wall shear stress (from Fluent)</td><td>Pa</td></tr>
+          <tr><td>C_f</td><td>Skin friction coefficient</td><td>—</td></tr>
+          <tr><td>U_τ</td><td>Friction velocity</td><td>m/s</td></tr>
+          <tr><td>y⁺</td><td>Target dimensionless wall distance</td><td>—</td></tr>
+          <tr><td>Δy</td><td>Required first cell height</td><td>m</td></tr>
+        </table>
+        <div class="note"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l9.5 17H2.5L12 3z"/><path d="M12 9v5M12 17h.01"/></svg><span>This method requires a first pass solution to read τ_w from — it's a refinement step, not a first guess for a brand-new mesh.</span></div>
+      </div>
+
+      <div class="formula-block" id="formulas-bias">
+        <h2><span class="num">04</span>Geometric bias series (mesh growth)</h2>
+        <p>A one-sided biased row of N cells with first height Δy and constant growth ratio r forms a finite geometric series that must sum to the domain length L. The symmetric case mirrors the series from both ends toward a shared center.</p>
+        <div class="eq">One-sided:  L = Δy · (1 − r^N) / (1 − r)<br>Symmetric, N even:  L = 2·Δy · (1 − r^(N/2)) / (1 − r)<br>Symmetric, N odd:  L = 2·Δy · (1 − r^⌊N/2⌋) / (1 − r) + Δy·r^⌊N/2⌋</div>
+        <p>Solved for r via bisection (bracketing search, tolerance 1×10⁻¹², up to 1000 iterations) when N is known; solved algebraically for N when r is known, then re-solved for the exact r that fits the integer division count.</p>
+        <div class="eq">N (from target r):  N = ln(1 − L(1−r)/Δy) / ln(r)</div>
+      </div>
+
+      <div class="formula-block" id="formulas-cfl">
+        <h2><span class="num">05</span>CFL condition &amp; time step</h2>
+        <p>The Courant–Friedrichs–Lewy number relates a time step to how far information can travel across one cell in that step. Given a target CFL and the smallest cell in the mesh, the required time step follows directly.</p>
+        <div class="eq">Δt = CFL · Δx / U<br>t_residence = L / U<br>t_total = t_residence · N_residence<br>N_steps = ⌈t_total / Δt⌉</div>
+        <table class="var-table">
+          <tr><th>Symbol</th><th>Meaning</th><th>Units</th></tr>
+          <tr><td>Δx</td><td>Minimum element length</td><td>m</td></tr>
+          <tr><td>CFL</td><td>Target Courant number</td><td>—</td></tr>
+          <tr><td>t_residence</td><td>Time for one flow-through of the domain</td><td>s</td></tr>
+        </table>
+        <div class="pill-row"><span class="pill">CFL ≤ 1 for most explicit schemes</span><span class="pill">Implicit solvers can tolerate CFL ≫ 1, at accuracy cost</span></div>
+      </div>
+
+      <div class="formula-block" id="formulas-inflation">
+        <h2><span class="num">06</span>Flat-plate turbulent boundary layer &amp; inflation stack</h2>
+        <p>Used only by the Inflation Layer calculator, where no Fluent report yet exists to read τ_w from. These are the standard Schlichting flat-plate correlations, valid roughly over 5×10⁵ &lt; Re_x &lt; 1×10⁷, and are the same relations behind ANSYS Fluent Meshing's built-in Y+ estimator.</p>
+        <div class="eq">Re_x = ρ·U·x / μ<br>C_f = 0.058 · Re_x^(−0.2)<br>δ = 0.37 · x / Re_x^(0.2)<br>τ_w = 0.5·ρ·U²·C_f&nbsp;&nbsp;&nbsp;U_τ = √(τ_w/ρ)</div>
+        <p>The layer stack itself is a finite geometric series exactly as in the bias calculator, letting you solve total thickness from a layer count, or the layer count needed to reach a target percentage of the estimated boundary-layer thickness δ:</p>
+        <div class="eq">Total thickness = y₁ · (r^N − 1) / (r − 1)<br>N (for target thickness) = ln(1 + total·(r−1)/y₁) / ln(r)</div>
+        <table class="var-table">
+          <tr><th>Symbol</th><th>Meaning</th><th>Units</th></tr>
+          <tr><td>x</td><td>Distance from the leading edge</td><td>m</td></tr>
+          <tr><td>δ</td><td>99% boundary-layer thickness</td><td>m</td></tr>
+          <tr><td>y₁</td><td>First inflation layer height</td><td>m</td></tr>
+          <tr><td>r</td><td>Layer-to-layer growth rate</td><td>—</td></tr>
+        </table>
+        <div class="pill-row"><span class="pill">Total inflation thickness ≈ 100–150% of δ is a common target</span><span class="pill">Growth rate 1.15–1.25 typical for RANS meshes</span></div>
+        <div class="note info"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v5h1"/></svg><span>Sources: Schlichting &amp; Gersten, <em>Boundary-Layer Theory</em>, 9th ed. (turbulent flat-plate C_f and δ correlations); ANSYS Fluent Meshing User's Guide, first-cell-height / Y+ estimation section; standard geometric inflation series used by Fluent Meshing and OpenFOAM snappyHexMesh's <code>addLayers</code>.</span></div>
+      </div>
+    </section>
+
+    <!-- =========================== ABOUT =========================== -->
+    <section class="view" id="view-about">
+      <div class="view-header">
+        <div class="eyebrow">About this tool</div>
+        <h1>Built for the pre-processing bench</h1>
+        <p class="lede">Y+ Console exists to remove one specific class of mistake: hand-typing mesh-sizing numbers into a spreadsheet, or a Fluent journal, and getting a decimal place wrong at 1am before a submission deadline.</p>
+      </div>
+
+      <div class="about-grid">
+        <div class="card">
+          <div class="card-title">What it is</div>
+          <p>A set of three focused calculators — Bias Factor, CFL &amp; Time Step, and Inflation Layers — covering the sizing decisions made before and after a first CFD pass. The bias and CFL calculators are direct ports of validated reference scripts; the inflation calculator adds standard flat-plate correlations for cases with no prior solution to read shear stress from.</p>
+        </div>
+        <div class="card">
+          <div class="card-title">What it isn't</div>
+          <p>Not a solver, not a mesh generator, and not a substitute for judgment on your specific geometry. Flat-plate correlations are a starting estimate for separated, curved, or highly three-dimensional flows — validate against your own y+ report once a solution exists.</p>
+        </div>
+        <div class="card">
+          <div class="card-title">How it computes</div>
+          <p>Every calculation runs in your browser in plain JavaScript — no server round-trip, no stored inputs. The bias and CFL logic is a line-by-line translation of the supplied Python reference implementations, including the bisection solver's exact tolerance and iteration cap.</p>
+        </div>
+        <div class="card">
+          <div class="card-title">Who it's for</div>
+          <p>Aerospace and mechanical engineering students and researchers running compressible CFD cases in ANSYS Fluent or OpenFOAM, who want mesh-sizing numbers they can trust without re-deriving them by hand each time.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<div class="toast" id="toast">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+  <span>Copied</span>
+</div>
+
+<footer class="site-foot">
+  Y+ Console — client-side CFD pre-processing calculators. Formulas preserved exactly from the supplied reference scripts; see the Formula Reference page for full derivations and citations.
+</footer>
+
+<script src="script.js"></script>
+<script src="calculators/bias.js"></script>
+<script src="calculators/cfl.js"></script>
+<script src="calculators/inflation.js"></script>
+<script>
+  document.getElementById('hero-svg-slot').innerHTML = HERO_SVG;
+</script>
+</body>
+</html>
